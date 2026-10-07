@@ -6,7 +6,8 @@
 <title>NITED Voice Clone — โคลนเสียง + สร้างเสียงพูด (Gemini 3.8 Flash TTS)</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <!-- ⚠️ path ต้อง relative เสมอ — หน้านี้ถูกฝังใต้ proxy /voiceclone/app/ (proxy ฉีด <base href>) -->
 <link rel="stylesheet" href="static/css/modalfit.css">
 <link rel="stylesheet" href="static/css/style.css">
@@ -14,135 +15,172 @@
 <body>
 <div class="container">
 
-  <header>
-    <h1>🎙️ NITED Voice Clone — โคลนเสียงของคุณ แล้วให้ AI พูดแทน</h1>
-    <p>อัดเสียงต้นแบบ 10–30 วินาที + อ่านประโยคยินยอม → ได้ "เสียงโคลน" ไว้ใช้สร้างเสียงบรรยายจากข้อความ · หรือเลือกใช้ 30 เสียงมาตรฐานของ Gemini</p>
-    <span class="model-note">โมเดล: gemini-3.8-flash-tts (Voice Replication)</span>
+  <header class="hero">
+    <div class="hero-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> NITED AI Tools · Gemini 3.8 Flash TTS</div>
+    <h1>โคลนเสียงของคุณ แล้วให้ AI พูดแทน</h1>
+    <p>อัดเสียงต้นแบบ 10–30 วินาที + อ่านประโยคยินยอม → ได้ “เสียงโคลน” ไว้สร้างเสียงบรรยายจากข้อความ หรือเลือกใช้ 30 เสียงมาตรฐานของ Gemini แล้วดาวน์โหลดเป็นไฟล์เสียง</p>
+    <div class="hero-pills">
+      <span><i class="fa-solid fa-microphone-lines"></i> อัดจากไมค์ / อัปโหลดไฟล์</span>
+      <span><i class="fa-solid fa-language"></i> ไทย + 130 ภาษา</span>
+      <span><i class="fa-solid fa-file-audio"></i> ดาวน์โหลด .wav</span>
+      <span><i class="fa-solid fa-shield-halved"></i> เสียง/คีย์ไม่ผ่านเซิร์ฟเวอร์ NITED</span>
+    </div>
   </header>
 
   <!-- 🔑 ไม่มีช่องกรอกคีย์ในหน้านี้ (เจ้าของสั่ง 2026-10-07 เหมือน ai-tts) — ใช้คีย์กลาง ai_apikey_gemini ของระบบทำแผน/คลังคีย์บัญชี dles -->
   <div id="keyStatus" class="key-status hidden"></div>
 
-
   <!-- ═══════════ 1) โคลนเสียง ═══════════ -->
-  <section class="card" id="cloneCard">
-    <h2>1️⃣ โคลนเสียง (Create Speaker)</h2>
-    <p class="muted">ใช้ไมค์เดียวกัน สถานที่เดียวกัน ทั้ง 2 คลิป · พูดชัด ไม่มีเสียงรบกวน/ดนตรี · Google จะตรวจว่าเป็นคนเดียวกันและพูดประโยคยินยอมจริง ถึงจะสร้างให้</p>
-
-    <div class="step">
-      <div class="num">A</div>
-      <div class="body">
-        <label for="voiceName">ตั้งชื่อเสียงนี้</label>
-        <input type="text" id="voiceName" maxlength="60" placeholder="เช่น ครูอาร์ม · เสียงบรรยายวิชาไฟฟ้า">
+  <section class="section" id="cloneCard">
+    <div class="section-head">
+      <div class="tile"><i class="fa-solid fa-clone"></i></div>
+      <div>
+        <h2>1. โคลนเสียง (Create Speaker)</h2>
+        <div class="sub">ใช้ไมค์เดียวกัน ที่เดียวกัน ทั้ง 2 คลิป · พูดชัด ไม่มีเสียงรบกวน · Google จะตรวจว่าเป็นคนเดียวกันและอ่านประโยคยินยอมจริง</div>
       </div>
     </div>
+    <div class="card stripe">
 
-    <div class="step">
-      <div class="num">B</div>
-      <div class="body">
-        <label>เสียงต้นแบบ (Reference) — พูดธรรมชาติ 10–30 วินาที</label>
-        <div class="read-box" id="readSample">
-          อ่านอะไรก็ได้ที่เป็นน้ำเสียงปกติของคุณ เช่น: "สวัสดีครับ/ค่ะ วันนี้เราจะมาเรียนรู้เรื่องความปลอดภัยในการทำงาน
-          ซึ่งเป็นพื้นฐานสำคัญของทุกสาขาอาชีพ ก่อนลงมือปฏิบัติงานทุกครั้ง เราต้องตรวจสอบเครื่องมือและอุปกรณ์ให้พร้อม
-          สวมใส่อุปกรณ์ป้องกันให้ครบถ้วน และปฏิบัติตามขั้นตอนอย่างเคร่งครัด เพื่อให้งานออกมาถูกต้องและปลอดภัย"
+      <div class="step">
+        <div class="num">A</div>
+        <div class="body">
+          <label for="voiceName">ตั้งชื่อเสียงนี้</label>
+          <input type="text" id="voiceName" maxlength="60" placeholder="เช่น ครูอาร์ม · เสียงบรรยายวิชาไฟฟ้า">
         </div>
-        <div class="row">
-          <button class="btn rec" id="btnRecRef">🔴 อัดเสียงต้นแบบ</button>
-          <span class="rec-timer" id="timerRef"></span>
-          <label class="btn secondary" for="fileRef">📁 อัปโหลดไฟล์เสียง</label>
-          <input type="file" id="fileRef" accept="audio/*,.wav,.mp3,.m4a,.aac,.ogg,.webm,.flac" class="hidden">
-        </div>
-        <div class="clip hidden" id="clipRef"><audio controls id="audioRef"></audio><span class="status" id="statusRef"></span></div>
       </div>
-    </div>
 
-    <div class="step">
-      <div class="num">C</div>
-      <div class="body">
-        <label>เสียงยินยอม (Consent) — อ่านประโยคนี้ให้ตรงทุกคำ</label>
-        <div class="row">
-          <span class="muted">ภาษาของประโยคยินยอม:</span>
-          <select id="consentLang" style="width:auto"></select>
+      <div class="step">
+        <div class="num">B</div>
+        <div class="body">
+          <label>เสียงต้นแบบ (Reference) — พูดธรรมชาติ 10–30 วินาที</label>
+          <div class="hint">อ่านอะไรก็ได้ด้วยน้ำเสียงปกติของคุณ ตัวอย่างเช่น:</div>
+          <div class="read-box" id="readSample">
+            “สวัสดีครับ/ค่ะ วันนี้เราจะมาเรียนรู้เรื่องความปลอดภัยในการทำงาน ซึ่งเป็นพื้นฐานสำคัญของทุกสาขาอาชีพ
+            ก่อนลงมือปฏิบัติงานทุกครั้ง เราต้องตรวจสอบเครื่องมือและอุปกรณ์ให้พร้อม สวมใส่อุปกรณ์ป้องกันให้ครบถ้วน
+            และปฏิบัติตามขั้นตอนอย่างเคร่งครัด เพื่อให้งานออกมาถูกต้องและปลอดภัย”
+          </div>
+          <div class="row">
+            <button class="btn rec" id="btnRecRef"><i class="fa-solid fa-microphone"></i> อัดเสียงต้นแบบ</button>
+            <span class="rec-timer" id="timerRef"></span>
+            <label class="btn secondary" for="fileRef"><i class="fa-solid fa-folder-open"></i> อัปโหลดไฟล์เสียง</label>
+            <input type="file" id="fileRef" accept="audio/*,.wav,.mp3,.m4a,.aac,.ogg,.webm,.flac" class="hidden">
+          </div>
+          <div class="clip hidden" id="clipRef"><audio controls id="audioRef"></audio><span class="status" id="statusRef"></span></div>
         </div>
-        <div class="consent-box" id="consentText"></div>
-        <div class="row">
-          <button class="btn rec" id="btnRecConsent">🔴 อัดเสียงยินยอม</button>
-          <span class="rec-timer" id="timerConsent"></span>
-          <label class="btn secondary" for="fileConsent">📁 อัปโหลดไฟล์เสียง</label>
-          <input type="file" id="fileConsent" accept="audio/*,.wav,.mp3,.m4a,.aac,.ogg,.webm,.flac" class="hidden">
-        </div>
-        <div class="clip hidden" id="clipConsent"><audio controls id="audioConsent"></audio><span class="status" id="statusConsent"></span></div>
       </div>
-    </div>
 
-    <div class="row" style="margin-top:6px">
-      <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="storeVoice" checked> เก็บเสียงโคลนไว้ที่ Google (ใช้ได้ 1 ปี · สูงสุด 200 เสียง/โปรเจกต์) — ไม่ติ๊ก = ได้คีย์ชั่วคราว 7 วัน</label>
+      <div class="step">
+        <div class="num">C</div>
+        <div class="body">
+          <label>เสียงยินยอม (Consent) — อ่านประโยคนี้ให้ตรงทุกคำ</label>
+          <div class="row" style="margin-bottom:4px">
+            <span class="muted">ภาษาของประโยคยินยอม</span>
+            <select id="consentLang" class="auto"></select>
+          </div>
+          <div class="consent-box"><i class="fa-solid fa-quote-left"></i><span id="consentText"></span></div>
+          <div class="row">
+            <button class="btn rec" id="btnRecConsent"><i class="fa-solid fa-microphone"></i> อัดเสียงยินยอม</button>
+            <span class="rec-timer" id="timerConsent"></span>
+            <label class="btn secondary" for="fileConsent"><i class="fa-solid fa-folder-open"></i> อัปโหลดไฟล์เสียง</label>
+            <input type="file" id="fileConsent" accept="audio/*,.wav,.mp3,.m4a,.aac,.ogg,.webm,.flac" class="hidden">
+          </div>
+          <div class="clip hidden" id="clipConsent"><audio controls id="audioConsent"></audio><span class="status" id="statusConsent"></span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><i class="fa-solid fa-check"></i></div>
+        <div class="body">
+          <label class="check"><input type="checkbox" id="storeVoice" checked> <span>เก็บเสียงโคลนไว้ที่ Google (ใช้ได้ 1 ปี · สูงสุด 200 เสียง/โปรเจกต์) — ไม่ติ๊ก = ได้คีย์ชั่วคราว 7 วัน</span></label>
+          <div class="row" style="margin-top:12px">
+            <button class="btn big accent" id="btnClone" disabled><i class="fa-solid fa-wand-magic-sparkles"></i> สร้างเสียงโคลน</button>
+            <span class="muted" id="cloneHint">ต้องมีทั้งเสียงต้นแบบและเสียงยินยอมก่อน</span>
+          </div>
+          <div id="cloneMsg"></div>
+        </div>
+      </div>
+
     </div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn big" id="btnClone" disabled>✨ สร้างเสียงโคลน</button>
-      <span class="muted" id="cloneHint">ต้องมีทั้งเสียงต้นแบบและเสียงยินยอมก่อน</span>
-    </div>
-    <div id="cloneMsg"></div>
   </section>
 
   <!-- ═══════════ 2) ข้อความ → เสียง ═══════════ -->
-  <section class="card" id="ttsCard">
-    <h2>2️⃣ สร้างเสียงพูดจากข้อความ</h2>
-
-    <label class="lbl" for="voiceSelect">เลือกเสียง</label>
-    <div class="row">
-      <select id="voiceSelect" class="grow"></select>
-      <button class="btn secondary" id="btnSample" title="ฟังเสียงนี้พูดประโยคสั้น ๆ (ใช้โควต้า 1 ครั้ง)">▶ ฟังตัวอย่าง</button>
-    </div>
-    <p class="muted" id="voiceDesc"></p>
-
-    <label class="lbl" for="ttsText" style="margin-top:10px">ข้อความที่จะให้พูด <span class="muted" id="charCount"></span></label>
-    <textarea id="ttsText" maxlength="4000" placeholder="พิมพ์ข้อความที่ต้องการให้เสียงนี้อ่าน… (ไทย/อังกฤษ/ผสมได้ · สูงสุด 4,000 ตัวอักษร)"></textarea>
-
-    <label class="lbl" for="styleInput" style="margin-top:10px">อารมณ์ / สไตล์การพูด (ไม่บังคับ)</label>
-    <input type="text" id="styleInput" maxlength="200" placeholder="เช่น อ่านแบบครูอธิบายบทเรียน ใจเย็น ชัดเจน">
-    <div class="chips" id="styleChips"></div>
-
-    <div class="row" style="margin-top:12px">
-      <label class="lbl" for="modelSelect" style="margin:0">โมเดล</label>
-      <select id="modelSelect" style="width:auto"></select>
-    </div>
-
-    <div class="row" style="margin-top:12px">
-      <button class="btn big" id="btnSpeak">🔊 สร้างเสียง</button>
-      <span class="muted">ใช้เวลาราว 5–30 วินาที ขึ้นกับความยาว</span>
-    </div>
-    <div id="ttsMsg"></div>
-
-    <div class="result hidden" id="resultBox">
-      <div class="row"><strong id="resultLabel"></strong><span class="muted" id="resultMeta"></span></div>
-      <audio controls id="resultAudio"></audio>
-      <div class="row">
-        <button class="btn secondary" id="btnDownload">⬇️ ดาวน์โหลด .wav</button>
+  <section class="section" id="ttsCard">
+    <div class="section-head">
+      <div class="tile blue"><i class="fa-solid fa-comment-dots"></i></div>
+      <div>
+        <h2>2. สร้างเสียงพูดจากข้อความ</h2>
+        <div class="sub">เลือกเสียงโคลนของคุณหรือเสียงมาตรฐาน Gemini → พิมพ์ข้อความ → ฟังและดาวน์โหลด</div>
       </div>
     </div>
-    <ul class="history" id="history"></ul>
-    <div class="log hidden" id="log"></div>
+    <div class="card stripe blue">
+
+      <label class="lbl" for="voiceSelect">เลือกเสียง</label>
+      <div class="row">
+        <select id="voiceSelect" class="grow"></select>
+        <button class="btn secondary" id="btnSample" title="ฟังเสียงนี้พูดประโยคสั้น ๆ (ใช้โควต้า 1 ครั้ง)"><i class="fa-solid fa-play"></i> ฟังตัวอย่าง</button>
+      </div>
+      <p class="tiny" id="voiceDesc" style="margin-top:6px"></p>
+
+      <div class="field">
+        <label class="lbl" for="ttsText">ข้อความที่จะให้พูด <span class="tiny" id="charCount"></span></label>
+        <textarea id="ttsText" maxlength="4000" placeholder="พิมพ์ข้อความที่ต้องการให้เสียงนี้อ่าน… (ไทย/อังกฤษ/ผสมได้ · สูงสุด 4,000 ตัวอักษร)"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="styleInput">อารมณ์ / สไตล์การพูด <span class="tiny">(ไม่บังคับ)</span></label>
+        <input type="text" id="styleInput" maxlength="200" placeholder="เช่น อ่านแบบครูอธิบายบทเรียน ใจเย็น ชัดเจน">
+        <div class="chips" id="styleChips"></div>
+      </div>
+
+      <div class="field row">
+        <label class="lbl" for="modelSelect" style="margin:0">โมเดล</label>
+        <select id="modelSelect" class="auto"></select>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <button class="btn big" id="btnSpeak"><i class="fa-solid fa-volume-high"></i> สร้างเสียง</button>
+        <span class="muted">ใช้เวลาราว 5–30 วินาที ขึ้นกับความยาว</span>
+      </div>
+      <div id="ttsMsg"></div>
+
+      <div class="result hidden" id="resultBox">
+        <div class="row spread"><span class="title" id="resultLabel"></span><span class="tiny" id="resultMeta"></span></div>
+        <audio controls id="resultAudio"></audio>
+        <div class="row">
+          <button class="btn secondary" id="btnDownload"><i class="fa-solid fa-download"></i> ดาวน์โหลด .wav</button>
+        </div>
+      </div>
+      <ul class="history" id="history"></ul>
+      <div class="log hidden" id="log"></div>
+    </div>
   </section>
 
   <!-- ═══════════ 3) คลังเสียงโคลน ═══════════ -->
-  <section class="card" id="libCard">
-    <h2>3️⃣ เสียงที่โคลนไว้</h2>
-    <div class="row">
-      <button class="btn secondary small" id="btnSyncVoices">🔄 ดึงรายการจาก Google</button>
-      <span class="muted">รายการนี้จำไว้ในเบราว์เซอร์เครื่องนี้ · กดดึงจาก Google เมื่อเปลี่ยนเครื่อง (เฉพาะเสียงที่เลือก "เก็บไว้ที่ Google")</span>
+  <section class="section" id="libCard">
+    <div class="section-head">
+      <div class="tile mint"><i class="fa-solid fa-book-bookmark"></i></div>
+      <div>
+        <h2>3. เสียงที่โคลนไว้</h2>
+        <div class="sub">รายการนี้จำไว้ในเบราว์เซอร์เครื่องนี้ · เปลี่ยนเครื่องให้กดดึงจาก Google (เฉพาะเสียงที่เลือก “เก็บไว้ที่ Google”)</div>
+      </div>
     </div>
-    <div id="libMsg"></div>
-    <table class="voices" id="voiceTable">
-      <thead><tr><th>ชื่อ</th><th>รหัส</th><th>สร้างเมื่อ</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <p class="muted hidden" id="libEmpty">ยังไม่มีเสียงโคลน — สร้างได้ที่ข้อ 1️⃣</p>
+    <div class="card stripe mint">
+      <div class="row spread">
+        <span class="muted"><i class="fa-solid fa-circle-info"></i> เสียงโคลนผูกกับโปรเจกต์ของคีย์ที่ใช้สร้าง</span>
+        <button class="btn secondary small" id="btnSyncVoices"><i class="fa-solid fa-rotate"></i> ดึงรายการจาก Google</button>
+      </div>
+      <div id="libMsg"></div>
+      <table class="voices" id="voiceTable">
+        <thead><tr><th>ชื่อ</th><th>รหัส</th><th>สร้างเมื่อ</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty hidden" id="libEmpty"><i class="fa-regular fa-folder-open"></i> ยังไม่มีเสียงโคลน — สร้างได้ที่ข้อ 1</p>
+    </div>
   </section>
 
   <footer>
-    🔒 เสียงต้นแบบ/เสียงยินยอม/คีย์ ส่งจากเบราว์เซอร์ของคุณไปที่ Google โดยตรง ไม่ผ่านเซิร์ฟเวอร์ NITED ·
-    โควต้า TTS ระดับฟรีมีน้อย (ราว 10–15 ครั้ง/วัน/โมเดล/คีย์) · ใช้เสียงโคลนเฉพาะเสียงของตัวเองหรือได้รับอนุญาตจากเจ้าของเสียงเท่านั้น ·
+    <i class="fa-solid fa-lock"></i> เสียงต้นแบบ/เสียงยินยอม/คีย์ ส่งจากเบราว์เซอร์ของคุณไปที่ Google โดยตรง ไม่ผ่านเซิร์ฟเวอร์ NITED ·
+    โควต้า TTS ระดับฟรีมีน้อย (ราว 10–15 ครั้ง/วัน/โมเดล/คีย์) · ใช้โคลนเฉพาะเสียงของตัวเองหรือได้รับอนุญาตจากเจ้าของเสียงเท่านั้น ·
     อ้างอิง <a href="https://ai.google.dev/gemini-api/docs/voice-replication" target="_blank" rel="noopener">Gemini Voice Replication</a>
   </footer>
 </div>

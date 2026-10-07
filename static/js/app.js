@@ -137,13 +137,13 @@ function renderVoiceTable() {
   $('#voiceTable').classList.toggle('hidden', state.voices.length === 0);
   tb.innerHTML = state.voices.map((v, i) => `
     <tr>
-      <td>${esc(v.name)}${v.stored ? '' : ' <span class="warn">(ชั่วคราว)</span>'}</td>
+      <td><span class="name"><i class="fa-solid fa-microphone-lines"></i>${esc(v.name)}</span>${v.stored ? '' : ' <span class="warn">(ชั่วคราว)</span>'}</td>
       <td><code title="${esc(v.id)}">${esc(v.id.length > 34 ? `${v.id.slice(0, 30)}…` : v.id)}</code></td>
       <td>${v.createdAt ? new Date(v.createdAt).toLocaleDateString('th-TH') : '-'}</td>
       <td class="row" style="gap:4px">
-        <button class="btn secondary small" data-use="${i}">ใช้เสียงนี้</button>
-        <button class="btn secondary small" data-copy="${i}" title="คัดลอกรหัส">📋</button>
-        <button class="btn danger small" data-del="${i}">ลบ</button>
+        <button class="btn secondary small" data-use="${i}"><i class="fa-solid fa-check"></i> ใช้เสียงนี้</button>
+        <button class="btn secondary small" data-copy="${i}" title="คัดลอกรหัส"><i class="fa-regular fa-copy"></i></button>
+        <button class="btn danger small" data-del="${i}"><i class="fa-regular fa-trash-can"></i> ลบ</button>
       </td>
     </tr>`).join('');
 }
@@ -221,7 +221,7 @@ async function toggleRecord(kind) {
   }
   msg('#cloneMsg', '');
   ui.btn.classList.add('on');
-  ui.btn.textContent = '⏹ หยุดอัด';
+  ui.btn.innerHTML = '<i class="fa-solid fa-stop"></i> หยุดอัด';
   // ทางจบมี 2 ทาง (กดหยุดเอง / ครบเวลาแล้วหยุดเอง) → ห่อ stop ให้จัดการ UI + คลิปที่เดียว
   const origStop = rec.stop.bind(rec);
   let finished = false;
@@ -230,7 +230,7 @@ async function toggleRecord(kind) {
     if (!finished) {
       finished = true;
       ui.btn.classList.remove('on');
-      ui.btn.textContent = `🔴 ${ui.label}`;
+      ui.btn.innerHTML = `<i class="fa-solid fa-microphone"></i> ${ui.label}`;
       ui.timer.textContent = '';
       p.then((blob) => {
         recorders[kind] = null;
@@ -314,7 +314,7 @@ function showResult(label, blob, meta) {
     <li><span class="label" title="${esc(h.label)}">${esc(h.label)}</span>
       <span class="muted">${h.secs.toFixed(1)} วิ</span>
       <audio controls preload="none" src="${h.url}"></audio>
-      <button class="btn secondary small" data-dl="${i}">⬇️</button></li>`).join('');
+      <button class="btn secondary small" data-dl="${i}" title="ดาวน์โหลด"><i class="fa-solid fa-download"></i></button></li>`).join('');
 }
 
 function safeName(s) { return String(s || 'voice').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40); }

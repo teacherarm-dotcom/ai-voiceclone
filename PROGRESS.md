@@ -5,3 +5,4 @@
 - verify ด้วย mock fetch ในเบราว์เซอร์จริง (ดู CLAUDE.md) · ⚠️ ยังไม่ได้ยิงคีย์จริง
 - prod: NSSM ai-voiceclone :5460 + dles /voiceclone (dles-landing ae1d8731)
 - 2026-10-07 (รอบ 2) เจ้าของสั่ง "เอา api key ออกจาก github + deploy": ตรวจแล้วไม่เคยมีค่าคีย์ในรีโป/ประวัติ · ถอดแผงกรอกคีย์ออก (เหลือแถบสถานะ ชี้ไปตั้งที่ระบบทำแผน · standalone ตั้งผ่าน Console) · deploy เอนจินแล้ว (kscp + nssm restart · keyPanel=0 บน prod)
+- 2026-10-07 (รอบ 3) เจ้าของ: "ดีไซน์ไม่สวยเลย ออกแบบให้เข้ากับ dles" → รื้อ style.css/index.html เป็นธีมพอร์ทัล dles (hero น้ำเงิน · หัวหมวดแบบ /ai-tools · การ์ดแถบสี · ปุ่มไล่สี · FontAwesome) · deploy แล้ว (kscp 3 ไฟล์ + restart · hero=1 บน prod) · ตรวจเบราว์เซอร์ทั้ง 3 ส่วน ไม่มี console error
