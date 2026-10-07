@@ -1,7 +1,7 @@
 # ai-voiceclone — โคลนเสียง (Voice Replication) + ข้อความ→เสียง ด้วย Gemini 3.8 Flash TTS
 
 พี่น้องของ `ai-tts` (โครงเดียวกัน: Flask เสิร์ฟหน้าเว็บ · Gemini เรียกจากเบราว์เซอร์ด้วยคีย์ผู้ใช้)
-· GitHub: `teacherarm-dotcom/ai-voiceclone` (repo แยก — **เฉพาะโฟลเดอร์นี้** ตามคำสั่งเจ้าของ 2026-10-07)
+· GitHub: `teacherarm-dotcom/ai-voiceclone` (public · repo แยก — **เฉพาะโฟลเดอร์นี้** ตามคำสั่งเจ้าของ 2026-10-07)
 
 ## รัน
 ```bash
