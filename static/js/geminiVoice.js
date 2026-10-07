@@ -127,6 +127,12 @@ export function quotaKind(status, msg) {
 function friendlyError(status, msg) {
   const m = String(msg || '');
   if (status === 400 && /API key not valid|API_KEY_INVALID/i.test(m)) return 'API key ไม่ถูกต้อง — ตรวจคีย์ที่ตั้งไว้ (ต้องเป็นคีย์ Gemini จาก aistudio.google.com)';
+  // Voice Replication เปิดเฉพาะโปรเจกต์ที่ผูกบัตร (Paid Tier 1+) — คีย์ฟรีใช้ได้แค่สังเคราะห์เสียงมาตรฐาน
+  if (/Paid Quota Tier|requires .*paid|billing/i.test(m)) {
+    return 'Google เปิดให้ “โคลนเสียง” เฉพาะคีย์ที่โปรเจกต์ผูกการชำระเงินแล้ว (Paid Tier 1 ขึ้นไป) — คีย์ที่ใช้อยู่ (ชุดเดียวกับระบบทำแผนการสอน) เป็นระดับฟรี จึงโคลนไม่ได้\n'
+      + '• ข้อ 2 “สร้างเสียงพูดจากข้อความ” ด้วย 30 เสียงมาตรฐานของ Gemini ยังใช้คีย์ฟรีได้ตามปกติ\n'
+      + '• ถ้าต้องการโคลนเสียง: เปิด Billing ให้โปรเจกต์ของคีย์ที่ aistudio.google.com แล้วลองใหม่';
+  }
   if (status === 401 || status === 403) return `คีย์ถูกปฏิเสธ (${status}) — คีย์ถูกบล็อก/ไม่มีสิทธิ์ใช้โมเดลนี้: ${m}`;
   if (status === 429) {
     return quotaKind(status, m) === 'rpd'

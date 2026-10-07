@@ -274,6 +274,8 @@ async function doClone() {
       } catch (e) {
         lastErr = e;
         if (e.status === 429 || e.status >= 500) { log(`clone key …${key.slice(-4)} → ${e.status} ลองคีย์ถัดไป`); continue; }
+        // คีย์นี้เป็นระดับฟรี (403 Paid Tier) — คีย์ถัดไปอาจเป็นโปรเจกต์ที่ผูกบัตรแล้ว ลองต่อ
+        if (e.status === 403 && keys.length > 1) { log(`clone key …${key.slice(-4)} → 403 ลองคีย์ถัดไป`); continue; }
         throw e;
       }
     }
