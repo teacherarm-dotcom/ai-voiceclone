@@ -17,6 +17,7 @@ PORT=5460 python3 app.py      # http://localhost:5460  (รันผ่าน sh
 - **แก้โค้ดที่นี่ → deploy = `kscp` ไฟล์ขึ้น `C:/ai-voiceclone/` + `nssm restart ai-voiceclone`** (ไม่ต้อง build dles) · แก้ `templates/index.html` ต้อง restart (Jinja cache) · `static/*` เสิร์ฟสด
 - ⚠️ **path ใน index.html/JS ต้อง relative เสมอ** (`static/...`) — proxy ฉีด `<base href="/voiceclone/app/">` · ขึ้นต้น `/` = หลุด proxy
 - `/api/ai-keys?provider=gemini` (absolute) = ซิงก์คีย์จากคลังคีย์บัญชี dles — ใช้คีย์กลาง `ai_apikey_gemini` ร่วมกับ planner/ML/ai-tts
+- 🔑 **ไม่มีช่องกรอก API key ในหน้านี้ (เจ้าของสั่ง 2026-10-07 "เอา api key ออกจาก github" — แบบเดียวกับ ai-tts 2026-08-08)** · เหลือแถบสถานะ: บน dles ชี้ไปตั้งที่ระบบทำแผน · standalone บอกให้ตั้งผ่าน Console · ⛔ ห้ามเอาแผงกรอกคีย์กลับมา · ⛔ ห้ามมีค่าคีย์/secret จริงในรีโป (ตรวจแล้ว ไม่เคยมีทั้งใน tree และ history)
 
 ## API ที่ใช้ (อ้างอิง docs Google 2026-10)
 - **สร้างเสียงโคลน**: `POST /v1beta/voices?key=…` body `{store, voice:{model:'gemini-3.8-flash-tts', type:'replicated', display_name, replicated:{source_audio:{mime_type:'audio/wav',data}, consent_audio:{…}}}}`

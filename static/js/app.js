@@ -81,18 +81,16 @@ async function syncSharedKeys() {
 function updateKeyUi() {
   const n = getKeys().length;
   const st = $('#keyStatus');
-  $('#keyCount').textContent = n ? `(มี ${n} คีย์)` : '(ยังไม่มีคีย์)';
   if (n) {
     st.className = 'key-status hidden';
     st.innerHTML = '';
   } else {
+    // ไม่มีช่องกรอกคีย์ในหน้านี้ (เจ้าของสั่ง 2026-10-07 — เหมือน ai-tts): ตั้งที่ระบบทำแผนการสอนที่เดียว
     st.className = 'key-status off';
     st.innerHTML = ON_DLES()
-      ? '⚠️ ยังไม่มีคีย์ Gemini ในบัญชีนี้ — ตั้งค่าครั้งเดียวที่ <a href="/lesson-plan" target="_blank" rel="noopener">ระบบทำแผนการสอน → ปุ่ม “ตั้งค่า AI”</a> หรือกดแผง ⚙️ ด้านล่างเพื่อใส่คีย์ที่นี่'
-      : '⚠️ ยังไม่มี Gemini API Key — กดแผง ⚙️ ด้านล่างเพื่อใส่คีย์ก่อนใช้งาน';
-    $('#keyPanel').open = true;
+      ? '⚠️ ยังไม่มีคีย์ Gemini ในบัญชีนี้ — ตั้งค่าคีย์ครั้งเดียวที่ <a href="/lesson-plan" target="_blank" rel="noopener">ระบบทำแผนการสอน → ปุ่ม “ตั้งค่า AI”</a> แล้วกลับมาหน้านี้ (ใช้คีย์ร่วมกันทุกระบบ)'
+      : '⚠️ ยังไม่มี Gemini API Key ในเบราว์เซอร์นี้ — รันแบบ standalone ให้ตั้งค่าครั้งเดียวใน Console: <code>localStorage.setItem(\'ai_apikey_gemini\', \'AIza…\')</code> แล้วรีเฟรช';
   }
-  if (!$('#keyInput').value) $('#keyInput').value = getKeys().join('\n');
 }
 
 /** คีย์ที่ควรลองก่อนสำหรับเสียงนี้ — เสียงโคลนผูกกับโปรเจกต์ของคีย์ที่สร้าง */
@@ -256,7 +254,7 @@ function updateCloneBtn() {
 
 async function doClone() {
   const keys = getKeys();
-  if (!keys.length) { msg('#cloneMsg', 'ยังไม่มี Gemini API Key — ใส่ที่แผง ⚙️ ก่อน'); $('#keyPanel').open = true; return; }
+  if (!keys.length) { msg('#cloneMsg', 'ยังไม่มี Gemini API Key — ใส่ที่แผง ⚙️ ก่อน'); return; }
   if (!state.ref || !state.consent) return;
   const name = $('#voiceName').value.trim() || `เสียงของฉัน ${new Date().toLocaleDateString('th-TH')}`;
   const store = $('#storeVoice').checked;
@@ -331,7 +329,7 @@ function download(blob, name) {
 
 async function doSpeak(sampleMode = false) {
   const keys = getKeys();
-  if (!keys.length) { msg('#ttsMsg', 'ยังไม่มี Gemini API Key — ใส่ที่แผง ⚙️ ก่อน'); $('#keyPanel').open = true; return; }
+  if (!keys.length) { msg('#ttsMsg', 'ยังไม่มี Gemini API Key — ใส่ที่แผง ⚙️ ก่อน'); return; }
   const voice = $('#voiceSelect').value;
   const text = sampleMode
     ? 'สวัสดีค่ะ นี่คือตัวอย่างเสียงจากระบบ NITED AI Tools ยินดีต้อนรับสู่การเรียนรู้ในวันนี้'
@@ -446,14 +444,6 @@ function init() {
   loadVoices();
   updateKeyUi();
   syncSharedKeys().then(() => updateKeyUi());
-  $('#btnSaveKeys').addEventListener('click', () => {
-    const keys = parseKeyString($('#keyInput').value);
-    localStorage.setItem(LS_KEYS_SHARED, keys.join('\n'));
-    $('#keyInput').value = keys.join('\n');
-    updateKeyUi();
-    if (keys.length) $('#keyPanel').open = false;
-  });
-
   // เสียง
   renderVoiceSelect();
   renderVoiceTable();

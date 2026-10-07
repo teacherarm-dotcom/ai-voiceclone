@@ -20,22 +20,9 @@
     <span class="model-note">โมเดล: gemini-3.8-flash-tts (Voice Replication)</span>
   </header>
 
+  <!-- 🔑 ไม่มีช่องกรอกคีย์ในหน้านี้ (เจ้าของสั่ง 2026-10-07 เหมือน ai-tts) — ใช้คีย์กลาง ai_apikey_gemini ของระบบทำแผน/คลังคีย์บัญชี dles -->
   <div id="keyStatus" class="key-status hidden"></div>
 
-  <details class="card" id="keyPanel">
-    <summary>⚙️ ตั้งค่า Gemini API Key <span class="muted" id="keyCount"></span></summary>
-    <div class="key-help">
-      คีย์ใช้ในเบราว์เซอร์ของคุณเท่านั้น (ไม่ผ่านเซิร์ฟเวอร์) · ขอคีย์ฟรีได้ที่
-      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>
-      · ใส่หลายคีย์ได้ (บรรทัดละคีย์) ระบบจะสลับให้เมื่อติดโควต้า ·
-      ⚠️ เสียงโคลนผูกกับ "โปรเจกต์" ของคีย์ที่ใช้สร้าง — ใช้คีย์เดิมตอนสังเคราะห์เสียงนั้น
-    </div>
-    <textarea id="keyInput" rows="3" placeholder="AIza… (บรรทัดละ 1 คีย์)"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button class="btn" id="btnSaveKeys">💾 บันทึกคีย์</button>
-      <span class="muted">คีย์ชุดเดียวกับระบบทำแผนการสอน / Micro Learning / TTS ของ NITED</span>
-    </div>
-  </details>
 
   <!-- ═══════════ 1) โคลนเสียง ═══════════ -->
   <section class="card" id="cloneCard">
