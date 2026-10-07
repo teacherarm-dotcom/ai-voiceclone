@@ -15,6 +15,7 @@ PORT=5460 python3 app.py      # http://localhost:5460  (รันผ่าน sh
 - ฝั่ง dles-landing: `app/(portal)/voiceclone/page.tsx` (EmbedFullscreen **`allowExtra="microphone"`** — ไม่ใส่ = ปุ่มอัดเสียงใช้ไม่ได้ใน iframe)
   + proxy `app/(portal)/voiceclone/app/[[...path]]/route.ts` (session gate + header `X-Vc-Secret` + ฉีด `<base href>`) + การ์ด `lib/ai-tools.ts`
 - **แก้โค้ดที่นี่ → deploy = `kscp` ไฟล์ขึ้น `C:/ai-voiceclone/` + `nssm restart ai-voiceclone`** (ไม่ต้อง build dles) · แก้ `templates/index.html` ต้อง restart (Jinja cache) · `static/*` เสิร์ฟสด
+- 🕳️ **ห้ามมีข้อความ `<base` ที่ใดใน index.html แม้ในคอมเมนต์ (บั๊กจริง 2026-10-07)** — proxy ฝั่ง dles เช็ค `/<base\s/i` ก่อนฉีด `base href`; คอมเมนต์ที่เขียนคำนี้ทำให้ proxy ข้ามการฉีด → หน้าใน dles โหลด CSS/JS ไม่ได้เลย (เอนจินเองปกติ · ดูจาก access log ใน `service.log` เห็นแค่ `GET /`)
 - ⚠️ **path ใน index.html/JS ต้อง relative เสมอ** (`static/...`) — proxy ฉีด `<base href="/voiceclone/app/">` · ขึ้นต้น `/` = หลุด proxy
 - `/api/ai-keys?provider=gemini` (absolute) = ซิงก์คีย์จากคลังคีย์บัญชี dles — ใช้คีย์กลาง `ai_apikey_gemini` ร่วมกับ planner/ML/ai-tts
 - 🔑 **ไม่มีช่องกรอก API key ในหน้านี้ (เจ้าของสั่ง 2026-10-07 "เอา api key ออกจาก github" — แบบเดียวกับ ai-tts 2026-08-08)** · เหลือแถบสถานะ: บน dles ชี้ไปตั้งที่ระบบทำแผน · standalone บอกให้ตั้งผ่าน Console · ⛔ ห้ามเอาแผงกรอกคีย์กลับมา · ⛔ ห้ามมีค่าคีย์/secret จริงในรีโป (ตรวจแล้ว ไม่เคยมีทั้งใน tree และ history)

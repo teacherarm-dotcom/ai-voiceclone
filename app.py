@@ -31,10 +31,13 @@ def _guard_secret():
 
 
 @app.after_request
-def _no_cache_html(resp):
+def _after(resp):
     # หน้าเว็บ/JS เปลี่ยนบ่อย — กัน proxy/เบราว์เซอร์แคชของเก่าจนครูเห็นหน้าเดิมหลัง deploy
     if resp.mimetype in ("text/html", "application/javascript", "text/javascript", "text/css"):
         resp.headers["Cache-Control"] = "no-cache"
+    # access log สั้น ๆ (stdout → NSSM service.log) ไว้ไล่ปัญหา "ไฟล์ไหนไม่ถูกโหลด" ผ่าน proxy
+    if request.path != "/health":
+        print(f"{request.method} {request.path} -> {resp.status_code} {resp.mimetype} user={'y' if request.headers.get('X-Vc-User') else '-'}", flush=True)
     return resp
 
 
