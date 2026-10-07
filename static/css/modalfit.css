@@ -1,0 +1,75 @@
+/*!
+ * kruarm-modalfit v1.0 — ตาข่ายกัน "ป๊อปอัปล้นจอ" มาตรฐานกลางทุกระบบในเครือ
+ * (เจ้าของสั่ง 2026-07-28: "เรื่อง popup อยากให้ทำกับทุกระบบของผมเลย")
+ *
+ * ปัญหาที่แก้ — เจอจริงใน DVE Lesson Plan แล้วพบว่าเป็นเงื่อนไขเดียวกันทุกระบบ:
+ *   ระบบเราเกือบทั้งหมดถูกฝังเป็น **iframe ในพอร์ทัล dles** → พื้นที่แนวตั้งน้อยกว่าหน้าจอจริง
+ *   โมดัลที่จัดกึ่งกลางด้วย flex/grid + ไม่มีเพดานความสูง พอเนื้อหายาวขึ้นนิดเดียวจะ
+ *   ล้นออกนอกกรอบ **แล้วเลื่อนไปดูไม่ได้** — ปุ่ม "ยืนยัน/ปิด" หลุดใต้ขอบ ผู้ใช้ตันสนิท
+ *
+ * 🔑 หลักคิด: **ทำให้ "ฉากหลัง" เลื่อนได้ คือตัวแก้จริง** (ไม่ต้องไปยุ่งกับการ์ดของใคร)
+ *    การบังคับ overflow ที่ "การ์ด" เสี่ยงพังดีไซน์คนอื่น (การ์ดที่ตั้งใจใช้ overflow-hidden
+ *    ตัดมุมโค้ง/หัวสี) → ที่นี่จึงแตะการ์ดเฉพาะตัวที่ปลอดภัยจริงเท่านั้น
+ *
+ * ⚠️ **เป็นตาข่ายกันพัง ไม่ใช่ตัวแทนการออกแบบที่ดี** — โมดัลที่อยากให้ "ปุ่มติดล่างเสมอ"
+ *    (หัว/ปุ่มคงที่ เนื้อหาเลื่อน) ยังต้องทำ flex column เองในคอมโพเนนต์นั้น
+ *    ตัวอย่างเต็ม: co-businesses-colleges/src/components/YokConfirmModal.jsx
+ *
+ * ⛔ ห้ามแก้ไฟล์นี้ในโปรเจคปลายทาง — แก้ที่ `ai-project/kruarm-modalfit/` แล้ว copy ทับทุกที่
+ * ⚠️ ต้อง `@import` ไฟล์นี้ **บนสุดของ global CSS** (กฎ CSS: @import ต้องมาก่อนกฎอื่นเสมอ
+ *    ถ้าเอาไปต่อท้ายไฟล์ เบราว์เซอร์จะ "ทิ้งทั้งบรรทัด" เงียบ ๆ = ไม่มีผลอะไรเลย)
+ */
+
+/* ── 1) ฉากหลังโมดัล = ตัวแก้หลัก ─────────────────────────────────────────────
+ * จับ 2 แบบที่ระบบเราใช้จริง:
+ *   · Tailwind:  class="fixed inset-0 …"  → [class*="fixed"][class*="inset-0"]  (specificity 0,2,0)
+ *   · CSS เอง:   .modal-overlay / .modal-backdrop / [data-modal-overlay]
+ * ใช้ specificity (0,2,0) โดยตั้งใจ — ต้องชนะคลาสเดี่ยวอย่าง `.overflow-hidden` / `.items-center`
+ * ที่อยู่บนฉากหลังให้ได้ ไม่งั้นตาข่ายไม่ทำงาน
+ */
+[class*="fixed"][class*="inset-0"],
+.modal-overlay,
+.modal-backdrop,
+[data-modal-overlay] {
+  overflow-y: auto;                   /* เนื้อหาสูงเกินจอ = เลื่อนดูได้ครบ (เดิมตันสนิท) */
+  overscroll-behavior: contain;       /* เลื่อนสุดแล้วไม่ลามไปเลื่อนหน้าเบื้องหลัง */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ⚠️ `items-center` / `place-items:center` + ลูกสูงเกินจอ = **ตัดหัวทิ้ง แล้วเลื่อนขึ้นไปดูไม่ได้**
+ *    (กับดักคลาสสิกของ flex/grid centering)
+ * `safe center` = เนื้อหาสั้นยังกึ่งกลางเหมือนเดิม · เนื้อหายาวจะชิดบนแล้วเลื่อนได้ครบ
+ * เบราว์เซอร์เก่าที่ไม่รู้จัก `safe` จะทิ้งบรรทัดนี้ → พฤติกรรมเท่าเดิม ไม่ regress
+ */
+[class*="fixed"][class*="inset-0"][class*="items-center"],
+[class*="fixed"][class*="inset-0"][class*="place-items"],
+.modal-overlay,
+.modal-backdrop {
+  align-items: safe center;
+}
+
+/* ── 2) การ์ดโมดัล — แตะเฉพาะตัวที่ "ปลอดภัยจริง" ─────────────────────────────
+ * เพดาน 92% ของจอ (เต็ม 100% ดูอึดอัด ไม่เห็นฉากหลัง — เจ้าของบอก 80-100% ก็รับได้)
+ *
+ * ⛔ ข้าม 2 กลุ่มนี้ เพราะบังคับ overflow แล้วพังดีไซน์:
+ *    · `overflow-hidden` — ตั้งใจตัดมุมโค้ง/หัวสีให้อยู่ในกรอบ (ยังเลื่อนได้จากฉากหลังในข้อ 1)
+ *    · `flex-col` — คอมโพเนนต์จัดการ scroll ภายในเองแล้ว (ยัดทับ = scroll ซ้อน scroll)
+ * ⚠️ `:where()` = specificity 0 → คลาสจริงบนการ์ด (เช่น `max-h-[85vh]`) ทับกลับได้เสมอ
+ *    เจตนาคือ "เติมให้ตัวที่ลืม" ไม่ใช่ไปแก้ตัวที่เขาทำถูกอยู่แล้ว
+ */
+:where([class*="fixed"][class*="inset-0"], .modal-overlay, .modal-backdrop, [data-modal-overlay])
+  > :not([class*="overflow-hidden"], [class*="flex-col"], [class*="flex-column"], style, script) {
+  max-height: 92vh;
+  max-height: 92dvh;                  /* จอมือถือ: ไม่นับแถบ address bar */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ── 3) จอเตี้ย (โน้ตบุ๊ก / กรอบ iframe / มือถือแนวนอน) ─────────────────────── */
+@media (max-height: 720px) {
+  :where([class*="fixed"][class*="inset-0"], .modal-overlay, .modal-backdrop)
+    > :not([class*="overflow-hidden"], [class*="flex-col"], [class*="flex-column"], style, script) {
+    max-height: 96vh;
+    max-height: 96dvh;
+  }
+}
